@@ -1,0 +1,71 @@
+/* Lazy load gallery images and add popups
+*/
+
+// Lazy load
+
+if('IntersectionObserver' in window) {
+
+    var observer = new IntersectionObserver(lazyLoad, {
+        rootMargin: '100px',
+        threshold: 0
+    });
+
+    $('.gallery-image img').each( function() {
+    	observer.observe($(this)[0]);
+    });
+
+}else{
+    eagerLoad();
+}
+
+function lazyLoad(elements) {
+    $.each(elements, function (key,img) {
+        if (img.isIntersecting) {
+            img.target.src = img.target.dataset.src;
+            observer.unobserve(img.target);
+        }
+    });
+};
+
+function eagerLoad() {
+    $('.gallery-image img').each( function () {
+        $(this).attr('src', $(this).data('src'));
+    });
+}
+
+// Popup
+
+$(document).ready( function(){
+
+    var $galleryMask = $('<div />', {
+        id: 'gallery-mask'
+    });
+    var $galleryImg = $('<img />', {
+        id: 'gallery-img'
+    });
+    var $galleryClose = $('<div />', {
+        id: 'gallery-close',
+        text: 'Close'
+    });
+
+    $('body').append($galleryMask);
+    $('#gallery-mask').append($galleryImg);
+    $('#gallery-mask').append($galleryClose);
+
+    $('.gallery-image img').each( function() {
+        var $el = $(this);
+
+        $el.click( function() {
+            $('#gallery-mask').css('left', 0);
+            $('#gallery-img').attr('src', $el.data('view'));
+            $('body').css('overflow-y', 'hidden');
+        });
+    });
+
+    $('#gallery-mask').click( function() {
+        $(this).css('left', '200vw');
+        $('#gallery-img').attr('src', '');
+        $('body').css('overflow-y', 'auto');
+    });
+
+});
